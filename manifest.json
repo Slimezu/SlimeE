@@ -1,0 +1,16 @@
+{
+  "name": "SlimeE",
+  "short_name": "SlimeE",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#A3FF00",
+  "description": "SlimeE: An AI search companion powered by the Gemini API.",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNIDIwLDgwIEMgMTAsNjAgMTAsMzAgMzAsMjAgQyA1MCwxMCA3MCwxMCA4MCwzMCBDIDkwLDUwIDkwLDcwIDcwLDg1IEMgNTAsMTAwIDMwLDEwMCAyMCw4MCBaIiBmaWxsPSIjQTNGRjAwIiAvPjxjaXJjbGUgY3g9IjQ1IiBjeT0iNDUiIHI9IjUiIGZpbGw9IiMxMjEyMTIiIC8+PGNpcmNsZSBjeD0iNjUiIGN5PSI0NSIgcj0iNSIgZmlsbD0iIzEyMTIxMiIgLz48cGF0aCBkPSJNIDQ1IDY1IFEgNTUgNzUgNjUgNjUiIHN0cm9rZT0iIzEyMTIxMiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiAvPjwvc3ZnPg==",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

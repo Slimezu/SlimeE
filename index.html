@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SlimeE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <script type="module" src="index.tsx"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap');
+
+    :root {
+      --primary-color: #A3FF00;
+      --background-color: #121212;
+      --surface-color: #1e1e1e;
+      --text-color: #e0e0e0;
+      --text-light-color: #888888;
+      --border-color: #333;
+      --shadow: 0 4px 12px rgba(0,0,0,0.3);
+      --header-height: 60px;
+      --tabs-height: 45px;
+      --form-height: 90px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #root {
+      width: 100%;
+      max-width: 100%; /* Allow full width for two-pane view */
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+      height: var(--header-height);
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    header h1 {
+      color: var(--primary-color);
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 0 8px rgba(163, 255, 0, 0.3);
+    }
+
+    #authButton {
+        background-color: var(--primary-color);
+        color: #121212;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition: all 0.2s ease-in-out;
+    }
+    #authButton:hover {
+        background-color: #ffffff;
+    }
+
+    #tabsContainer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0 1rem;
+        border-bottom: 1px solid var(--border-color);
+        height: var(--tabs-height);
+        flex-shrink: 0;
+        overflow-x: auto;
+    }
+     #tabsContainer::-webkit-scrollbar { display: none; } /* Hide scrollbar */
+
+    .tab-item {
+        padding: 0.5rem 1rem;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        color: var(--text-light-color);
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .tab-item.active {
+        color: var(--primary-color);
+        background-color: var(--surface-color);
+    }
+    .tab-item:hover:not(.active) {
+        background-color: #2a2a2a;
+    }
+
+    #newChatButton {
+        background: transparent;
+        border: 1px dashed var(--text-light-color);
+        color: var(--text-light-color);
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        line-height: 28px;
+        transition: all 0.2s ease;
+    }
+    #newChatButton:hover {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    #appContainer {
+      display: flex;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+    
+    main {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      transition: width 0.3s ease-in-out;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    #appContainer.artifact-visible main {
+      max-width: 50%;
+      flex-shrink: 0;
+    }
+
+
+    #chatContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      width: 100%;
+    }
+    
+    #welcomeScreen {
+        text-align: center;
+        margin: auto;
+    }
+    #welcomeScreen h1 {
+        font-size: 3rem;
+    }
+     #welcomeScreen p {
+        color: var(--text-light-color);
+        font-size: 1.1rem;
+     }
+
+    .message-bubble {
+        padding: 1rem 1.5rem;
+        border-radius: 18px;
+        max-width: 95%;
+        line-height: 1.6;
+        border: 2px solid transparent;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .message-bubble.active-artifact {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 10px rgba(163, 255, 0, 0.5);
+    }
+
+    .user-message {
+        background-color: var(--primary-color);
+        color: #121212;
+        border-radius: 18px 18px 4px 18px;
+        align-self: flex-end;
+        font-weight: 500;
+    }
+    .model-message {
+        background-color: var(--surface-color);
+        border-radius: 18px 18px 18px 4px;
+        align-self: flex-start;
+        width: 100%; /* Take full width to contain children properly */
+    }
+
+    .model-message p { margin: 0 0 1rem 0; }
+    .model-message p:last-child { margin-bottom: 0; }
+    .model-message strong { color: var(--primary-color); }
+    .model-message ul { padding-left: 20px; margin-bottom: 1rem; }
+    .model-message li { margin-bottom: 0.5rem; }
+    .model-message pre {
+      background-color: #111;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 1rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Roboto Mono', monospace;
+      margin-bottom: 1rem;
+    }
+    .model-message code { font-family: 'Roboto Mono', monospace; }
+
+    #searchFormContainer {
+        padding: 1rem 1.5rem;
+        height: var(--form-height);
+        flex-shrink: 0;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    #searchForm {
+      display: flex;
+      gap: 0.5rem;
+      border-radius: 50px;
+    }
+    #searchInput {
+      flex-grow: 1;
+      border: 1px solid var(--border-color);
+      background-color: var(--surface-color);
+      color: var(--text-color);
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 50px 0 0 50px;
+      outline: none;
+      transition: all 0.2s ease-in-out;
+    }
+    #searchInput::placeholder { color: var(--text-light-color); }
+    #searchInput:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(163, 255, 0, 0.4);
+    }
+    #searchButton {
+      background-color: var(--primary-color);
+      color: #121212;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 0 50px 50px 0;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: all 0.2s ease-in-out;
+    }
+    #searchButton:hover:not(:disabled) {
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(163, 255, 0, 0.5);
+    }
+    #searchButton:disabled {
+      cursor: not-allowed;
+      filter: grayscale(80%);
+      opacity: 0.7;
+    }
+    
+    .hidden { display: none !important; }
+    
+    .loader-container { display: flex; justify-content: center; align-items: center; padding: 1rem 0; }
+    .loader {
+      border: 5px solid #333;
+      border-radius: 50%;
+      border-top: 5px solid var(--primary-color);
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .result-media {
+        max-width: 100%;
+        border-radius: 4px;
+        margin: 1rem 0 0 0;
+        display: block;
+    }
+
+    .sources-container { margin-top: 1.5rem; }
+    .sources-header {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-light-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+    .sources-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .source-link {
+      display: block;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--primary-color);
+      transition: background-color 0.2s;
+    }
+    .source-link:hover { background-color: #2a2a2a; }
+    .source-link .title { font-weight: 500; }
+    .source-link .uri {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-light-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .view-artifact-button {
+        background-color: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin-top: 1.5rem;
+    }
+    .view-artifact-button:hover {
+        background-color: var(--primary-color);
+        color: #121212;
+    }
+    
+    #artifactContainer {
+      width: 50%;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      background-color: #181818;
+    }
+    .artifact-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+    .artifact-header h3 {
+      margin: 0;
+      font-weight: 500;
+      color: var(--text-light-color);
+    }
+    #closeArtifactButton {
+      background: none;
+      border: none;
+      color: var(--text-light-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      line-height: 1;
+    }
+    #closeArtifactButton:hover {
+      color: var(--text-color);
+    }
+    #artifactFrame {
+      flex-grow: 1;
+      border: none;
+      background-color: #fff;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="root">
+    <header>
+      <h1>SlimeE</h1>
+      <p style="color:limegreen">for my Friends and Family</p>
+      <button id="authButton">Sign In</button>
+    </header>
+
+    <div id="tabsContainer" class="hidden"></div>
+
+    <div id="appContainer">
+      <main id="mainContent">
+        <div id="chatContainer">
+          <!-- Messages will be injected here -->
+        </div>
+      </main>
+
+      <aside id="artifactContainer" class="hidden">
+        <div class="artifact-header">
+          <h3>Artifact</h3>
+          <button id="closeArtifactButton" aria-label="Close artifact view">&times;</button>
+        </div>
+        <iframe id="artifactFrame" title="Code Artifact"></iframe>
+      </aside>
+    </div>
+    
+    <div id="searchFormContainer" class="hidden">
+      <form id="searchForm">
+          <input type="text" id="searchInput" placeholder="Ask anything..." required aria-label="Search query">
+          <button type="submit" id="searchButton">Ask</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
